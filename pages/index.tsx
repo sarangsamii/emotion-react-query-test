@@ -1,12 +1,12 @@
-import axios from "axios";
 import type { NextPage } from "next";
-import { useQuery } from "react-query";
-import { User } from "types";
 import Image from "next/image";
+import Link from "next/link";
+
+import { User } from "types";
 import useUsers from "hooks/useUsers";
 
 const Home: NextPage = () => {
-  const { data, isLoading, isError, isFetching } = useUsers()
+  const { data, isLoading, isError, isFetching } = useUsers();
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -15,9 +15,15 @@ const Home: NextPage = () => {
   return (
     <div>
       {data.map(({ id, first_name, last_name, avatar, email }: User) => (
-        <div key={id}>
-          <Image width={200} height={200} src={avatar} alt="Profile" />
-          {first_name} {last_name} {email}
+        <div key={id} style={{display:"flex",flexDirection:"column",justifyContent:"flex-start"}}>
+           <Link href={`/user/${id}`}>
+            <a>
+              {first_name} {last_name}
+            </a>
+          </Link>
+          <Image width={200} height={200} src={avatar} objectFit="contain" alt="Profile" />
+         
+          {email}
         </div>
       ))}
       {isFetching ? "Updating" : null}

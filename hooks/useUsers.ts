@@ -1,16 +1,28 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+
+import { User } from "types";
 
 const useUsers = () => {
+  const queryClient = useQueryClient();
   return useQuery(
     "users",
-    () => axios.get("https://reqres.in/api/users").then((res) => res.data.data),
+    () => {
+      const users = axios.get("https://reqres.in/api/users").then((res) => {
+        res.data.data.forEach((user: User) => {
+          queryClient.setQueryData(["user", `${user.id}`], user);
+        });
+        return res.data.data;
+      });
+
+      return users;
+    },
     {
-      staleTime: 5000,
+      staleTime: 1000,
       refetchOnWindowFocus: "always",
       cacheTime: Infinity,
-      retry: 10,
-      retryDelay:1000
+      retry: 2,
+      retryDelay: 1000,
     }
   );
 };
