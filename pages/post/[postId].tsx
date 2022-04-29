@@ -1,14 +1,14 @@
 import axios from "axios";
-import useSingleUser from "hooks/useSingleUser";
+import useSinglePost from "hooks/useSinglePost";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 
 const UserDetails: NextPage = () => {
   const router = useRouter();
-  const { userId } = router.query;
+  const { postId } = router.query;
 
-  const { data, isLoading, isFetching } = useSingleUser(`${userId}`);
+  const { data, isLoading, isFetching } = useSinglePost(Number(postId));
 
   return (
     <div>
@@ -17,7 +17,7 @@ const UserDetails: NextPage = () => {
           "Loading..."
         ) : (
           <div>
-            {data.first_name} {data.last_name}
+            {data.title} {data.body}
           </div>
         )}
       </div>

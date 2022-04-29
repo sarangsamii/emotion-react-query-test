@@ -3,17 +3,17 @@ import { useQuery } from "react-query";
 
 //import { User } from "types";
 
-const useUsers = () => {
+const usePosts = () => {
   //const queryClient = useQueryClient();
   return useQuery(
-    "users",
+    "posts",
     () => {
-      const users = axios.get("https://reqres.in/api/users").then((res) => {
+      const users = axios.get("https://jsonplaceholder.typicode.com/posts?userId=1").then((res) => {
         //Cache List Data For faster Loading
         // res.data.data.forEach((user: User) => {
         //   queryClient.setQueryData(["user", `${user.id}`], user);
         // });
-        return res.data.data;
+        return res.data;
       });
 
       return users;
@@ -27,4 +27,4 @@ const useUsers = () => {
     }
   );
 };
-export default useUsers;
+export default usePosts;
