@@ -1,17 +1,18 @@
 import axios from "axios";
-import { useQuery, useQueryClient } from "react-query";
+import { useQuery } from "react-query";
 
-import { User } from "types";
+//import { User } from "types";
 
 const useUsers = () => {
-  const queryClient = useQueryClient();
+  //const queryClient = useQueryClient();
   return useQuery(
     "users",
     () => {
       const users = axios.get("https://reqres.in/api/users").then((res) => {
-        res.data.data.forEach((user: User) => {
-          queryClient.setQueryData(["user", `${user.id}`], user);
-        });
+        //Cache List Data For faster Loading
+        // res.data.data.forEach((user: User) => {
+        //   queryClient.setQueryData(["user", `${user.id}`], user);
+        // });
         return res.data.data;
       });
 

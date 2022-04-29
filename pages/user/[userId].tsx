@@ -1,4 +1,5 @@
 import axios from "axios";
+import useSingleUser from "hooks/useSingleUser";
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
@@ -7,16 +8,7 @@ const UserDetails: NextPage = () => {
   const router = useRouter();
   const { userId } = router.query;
 
-  const { data, isLoading, isFetching } = useQuery(
-    ["user", userId],
-    () =>
-      axios
-        .get(`https://reqres.in/api/users/${userId}`)
-        .then((res) => res.data.data),
-    {
-      enabled: userId ? true : false,
-    }
-  );
+  const { data, isLoading, isFetching } = useSingleUser(`${userId}`);
 
   return (
     <div>
