@@ -8,16 +8,17 @@ import { fetchSinglePostData } from "hooks/useSinglePost";
 import { useQueryClient } from "react-query";
 
 import { useForm, SubmitHandler } from "react-hook-form";
-import { postUser } from "hooks/useNewPost";
-
+import { useNewPost } from "hooks/useNewPost";
 
 const Home: NextPage = () => {
+  const mutation = useNewPost();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<PostItem>();
-  const onSubmit: SubmitHandler<PostItem> = (data) => postUser({...data,userId:1});
+  const onSubmit: SubmitHandler<PostItem> = (data) =>
+    mutation.mutate({ ...data, userId: 1 });
 
   const queryClient = useQueryClient();
   const { data, isLoading, isError, isFetching } = usePosts();
@@ -25,6 +26,19 @@ const Home: NextPage = () => {
   if (isLoading) return <div>Loading...</div>;
 
   if (isError) return <div>An error has occurred:</div>;
+
+
+  const buttonTextRender = () => {
+    if (mutation.isLoading) {
+      return "Sending...";
+    } else if (mutation.isSuccess) {
+      return "Saved!";
+    } else if (mutation.isError) {
+      return "Oppss an Error Occured :(";
+    } else {
+      return "Send";
+    }
+  };
 
   return (
     <div>
@@ -38,7 +52,7 @@ const Home: NextPage = () => {
               id="title"
               {...register("title", { required: true })}
             />
-             {errors.title && <span>This field is required</span>}
+            {errors.title && <span>This field is required</span>}
           </div>
           <div>
             <label htmlFor="body">body : </label>
@@ -49,11 +63,9 @@ const Home: NextPage = () => {
             />
             {errors.body && <span>This field is required</span>}
           </div>
-          <button>Submit</button>
+          <button>{buttonTextRender()}</button>
         </div>
       </form>
-
- 
 
       {data.map(({ id, title, body }: PostItem) => (
         <div
@@ -62,11 +74,11 @@ const Home: NextPage = () => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
-            marginBottom:12
+            marginBottom: 12,
           }}
           onMouseEnter={() => {
             queryClient.prefetchQuery(
-              ["post",id],
+              ["post", id],
               () => fetchSinglePostData(id),
               {
                 staleTime: Infinity,
@@ -75,11 +87,8 @@ const Home: NextPage = () => {
           }}
         >
           <Link href={`/post/${id}`}>
-            <a style={{color:"red"}}>
-              {title}
-            </a>
+            <a style={{ color: "red" }}>{title}</a>
           </Link>
-          
 
           {body}
         </div>
