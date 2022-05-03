@@ -1,24 +1,35 @@
 import axios from "axios";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import { PostItem, PostList } from "types";
 
 //import { User } from "types";
 
-const usePosts = () => {
+export const fetchPosts = (page: number) => {
+  return axios
+    .get("https://jsonplaceholder.typicode.com/posts", {
+      params: {
+        page,
+      },
+    })
+    .then((res) => {
+      //Cache List Data For faster Loading
+      // res.data.data.forEach((user: User) => {
+      //   queryClient.setQueryData(["user", `${user.id}`], user);
+      // });
+      return res.data;
+    });
+};
+
+const usePosts = (page: number,initialData:PostItem[]) => {
   //const queryClient = useQueryClient();
   return useQuery(
-    "posts",
+    ["posts", { page }],
     () => {
-      const users = axios.get("https://jsonplaceholder.typicode.com/posts?userId=1").then((res) => {
-        //Cache List Data For faster Loading
-        // res.data.data.forEach((user: User) => {
-        //   queryClient.setQueryData(["user", `${user.id}`], user);
-        // });
-        return res.data;
-      });
-
-      return users;
+      return fetchPosts(page);
     },
     {
+      initialData,
+      keepPreviousData: true,
       staleTime: 1000,
       refetchOnWindowFocus: "always",
       cacheTime: Infinity,
@@ -28,3 +39,4 @@ const usePosts = () => {
   );
 };
 export default usePosts;
+

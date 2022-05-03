@@ -13,6 +13,11 @@ export type PostItem = {
   userId: number;
 };
 
+export type PostList = {
+  posts:PostItem[]
+}
+
+
 export type PostUser = {
   name: string;
   job: string;

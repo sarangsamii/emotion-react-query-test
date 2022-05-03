@@ -2,16 +2,20 @@ import type { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { PostItem, PostUser, User } from "types";
-import usePosts from "hooks/usePosts";
+import { PostItem, PostList } from "types";
+import usePosts, { fetchPosts } from "hooks/usePosts";
 import { fetchSinglePostData } from "hooks/useSinglePost";
 import { useQueryClient } from "react-query";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNewPost } from "hooks/useNewPost";
+import { useEffect, useState } from "react";
 
-const Home: NextPage = () => {
+
+
+const Home: NextPage<PostList> = ({posts}) => {
   const mutation = useNewPost();
+  const [page, setPage] = useState(0);
   const {
     register,
     handleSubmit,
@@ -21,12 +25,20 @@ const Home: NextPage = () => {
     mutation.mutate({ ...data, userId: 1 });
 
   const queryClient = useQueryClient();
-  const { data, isLoading, isError, isFetching } = usePosts();
+  const { data, isLoading, isError, isFetching, isPreviousData } =
+    usePosts(page,posts);
+
+  useEffect(() => {
+    if (isPreviousData || !data?.hasMore) {
+      queryClient.prefetchQuery(["posts", { page: page + 1 }], () => {
+        return fetchPosts(page);
+      });
+    }
+  }, [isPreviousData, data, queryClient, page]);
 
   if (isLoading) return <div>Loading...</div>;
 
   if (isError) return <div>An error has occurred:</div>;
-
 
   const buttonTextRender = () => {
     if (mutation.isLoading) {
@@ -66,6 +78,21 @@ const Home: NextPage = () => {
           <button>{buttonTextRender()}</button>
         </div>
       </form>
+      <h3>Page : {page}</h3>
+      {isFetching ? "..." : null}
+      <button onClick={() => setPage((prev) => prev - 1)} disabled={page === 0}>
+        Previous
+      </button>
+      <button
+        onClick={() => {
+          if (!isPreviousData && data.hasMore) {
+            setPage((old) => old + 1);
+          }
+        }}
+        disabled={isPreviousData || !data?.hasMore}
+      >
+        Next
+      </button>
 
       {data.map(({ id, title, body }: PostItem) => (
         <div
@@ -99,3 +126,10 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export async function getServerSideProps() {
+  let data: PostList = await fetchPosts(1);
+  return {
+    props: { posts: data },
+  };
+}
