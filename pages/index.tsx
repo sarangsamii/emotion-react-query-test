@@ -130,6 +130,6 @@ export default Home;
 export async function getServerSideProps() {
   let data: PostList = await fetchPosts(1);
   return {
-    props: { posts: data },
+    props: { posts: data?data:[] },
   };
 }
