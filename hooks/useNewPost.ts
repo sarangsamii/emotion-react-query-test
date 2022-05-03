@@ -11,7 +11,9 @@ export const useNewPost = () => {
     },
     {
       //Optimistic Update
-      onMutate: (values) => {
+      onMutate:async (values) => {
+        await queryClient.cancelQueries('posts')
+        const oldPosts = queryClient.getQueriesData('posts')
         queryClient.setQueryData<PostItem[]>("posts", (oldData) => {
           if (oldData) {
             return [
@@ -25,13 +27,22 @@ export const useNewPost = () => {
             return [values];
           }
         });
+        return oldPosts
       },
       onSuccess: (data, values) => {
         //Or You can SetQueryData and edit cache directly (Optimistic)
         queryClient.invalidateQueries("posts");
       },
-      onError: (error) => console.log(error),
-      onSettled: () => console.log("Execute on both error and success..."),
+      onError: (error,values,context:any) => {
+        if(context){
+          queryClient.setQueryData('todos', context.previousTodos)
+        }
+        
+
+      },
+      onSettled: () => {console.log("Execute on both error and success...")
+    queryClient.invalidateQueries('posts')
+    },
     }
   );
 };
