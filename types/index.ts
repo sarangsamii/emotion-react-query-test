@@ -22,3 +22,19 @@ export type PostUser = {
   name: string;
   job: string;
 };
+
+declare module '@emotion/react' {
+  export interface Theme {
+    backgroundColor: string,
+    text: string,
+    colors : {
+      primary: string;
+      secondary: string;
+    };
+  }
+}
+
+export type ContextType = {
+  dark:boolean
+  toggleDark:()=>void
+}

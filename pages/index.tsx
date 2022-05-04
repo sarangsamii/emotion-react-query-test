@@ -9,11 +9,19 @@ import { useQueryClient } from "react-query";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useNewPost } from "hooks/useNewPost";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import styled from '@emotion/styled'
+import { ThemeContext } from "./_app";
+
+
+const SomeText = styled.div`
+  color: ${({theme}) => theme.colors.primary};
+`
 
 
 
 const Home: NextPage<PostList> = ({posts}) => {
+  const myTheme= useContext(ThemeContext);
   const mutation = useNewPost();
   const [page, setPage] = useState(0);
   const {
@@ -54,9 +62,14 @@ const Home: NextPage<PostList> = ({posts}) => {
 
   return (
     <div>
+      <label htmlFor="darkMode">Dark Mode</label>
+      <input id="darkMode" type="checkbox" checked={myTheme?.dark} onChange={()=>myTheme?.toggleDark()} />
       <form onSubmit={handleSubmit(onSubmit)}>
         <div style={{ display: "block" }}>
+          <SomeText>
           <h2>Post :</h2>
+          </SomeText>
+        
           <div style={{ marginBottom: 24 }}>
             <label htmlFor="title">title : </label>
             <input
